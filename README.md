@@ -62,7 +62,9 @@ LoRA 微调（r=16 / α=32 / 全线性层 / CPU fp32 / 3 epoch ≈ 10 min）
 前后对比评测（17 条留出集）
 ```
 
-交互式架构图：[`docs/lora-pipeline.workflow.html`](docs/lora-pipeline.workflow.html)
+![链路架构图](docs/lora-pipeline.png)
+
+> 可缩放 / 可导出 SVG 的交互版本：[`docs/lora-pipeline.workflow.html`](docs/lora-pipeline.workflow.html)
 
 ---
 
