@@ -1,0 +1,26 @@
+# 模型权重与训练产物（体积过大，用 scripts/ 本地生成）
+models/
+out/
+*.safetensors
+*.bin
+*.pt
+*.pth
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 环境与密钥
+.env
+.env.*
+*.key
+*.pem
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,71 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "考勤规则 LoRA 微调全链路",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": "llm-lab/docs/lora-pipeline.workflow.html"
+  },
+  "lanes": [
+    { "id": "data", "label": "数据构建" },
+    { "id": "train", "label": "训练" },
+    { "id": "eval", "label": "评测" },
+    { "id": "deliver", "label": "交付" }
+  ],
+  "phases": [
+    { "id": "build", "label": "构造指令集", "fromCol": 0, "toCol": 1 },
+    { "id": "finetune", "label": "LoRA 微调", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "ship", "label": "评测与交付", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": ["rules", "dataset", "encode", "lora", "adapter", "serve"],
+  "nodes": [
+    { "id": "rules", "lane": "data", "col": 0, "type": "external", "label": "考勤规则引擎", "sublabel": "8 类场景 · 当 teacher", "width": 142 },
+    { "id": "dataset", "lane": "data", "col": 1, "type": "database", "label": "指令数据集", "sublabel": "175 条 · 训 158 / 验 17", "width": 142 },
+    { "id": "base", "lane": "train", "col": 1, "type": "cloud", "label": "基座模型", "sublabel": "Qwen2.5-0.5B-Instruct", "tag": "502.8M 参数", "width": 142 },
+    { "id": "encode", "lane": "train", "col": 2, "type": "backend", "label": "编码 + Label 掩码", "sublabel": "prompt 段置 -100", "width": 142 },
+    { "id": "lora", "lane": "train", "col": 3, "type": "backend", "label": "LoRA 微调", "sublabel": "r=16 · α=32 · 全线性层", "tag": "可训练参数 1.75%", "width": 142 },
+    { "id": "adapter", "lane": "deliver", "col": 4, "type": "database", "label": "LoRA 适配器", "sublabel": "33.6 MB · 可独立分发", "width": 142 },
+    { "id": "verify", "lane": "eval", "col": 4, "type": "backend", "label": "前后对比评测", "sublabel": "17 条留出集", "width": 142 },
+    { "id": "serve", "lane": "deliver", "col": 5, "type": "backend", "label": "推理服务", "sublabel": "/v1/judge · FastAPI", "width": 142 }
+  ],
+  "edges": [
+    { "id": "rules-to-dataset", "from": "rules", "to": "dataset", "label": "自动生成", "variant": "emphasis", "role": "main" },
+    { "id": "dataset-to-encode", "from": "dataset", "to": "encode", "variant": "default", "role": "main" },
+    { "id": "base-to-encode", "from": "base", "to": "encode", "variant": "dashed", "role": "branch" },
+    { "id": "encode-to-lora", "from": "encode", "to": "lora", "variant": "emphasis", "role": "main" },
+    { "id": "lora-to-adapter", "from": "lora", "to": "adapter", "variant": "default", "role": "main" },
+    { "id": "adapter-to-verify", "from": "adapter", "to": "verify", "label": "对照基座", "variant": "dashed", "role": "branch" },
+    { "id": "adapter-to-serve", "from": "adapter", "to": "serve", "variant": "emphasis", "role": "main" }
+  ],
+  "semanticChecks": {
+    "allowedRoots": ["rules", "base"],
+    "allowedTerminals": ["serve", "verify"]
+  },
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "关键设计",
+      "items": [
+        "prompt 段做 label 掩码，loss 只在回答段计算",
+        "LoRA 覆盖全部线性层，可训练参数仅占 1.75%"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "量化结论",
+      "items": [
+        "基座能输出合法 JSON（100%），但业务规则判定全错",
+        "status 判定正确率 0% → 58.8%，全字段 0% → 35.3%"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "工程约束",
+      "items": [
+        "无 GPU：CPU fp32 训练 3 epoch 约 10 分钟",
+        "适配器 33.6 MB，merge_and_unload() 后脱离 PEFT"
+      ]
+    }
+  ]
+}
