@@ -10,7 +10,7 @@ D2: Qwen2.5-0.5B-Instruct CPU LoRA 微调 —— 考勤规则判定
 import os, sys, json, time
 sys.stdout.reconfigure(encoding='utf-8')
 
-LAB = r'C:\Users\intpj\WorkBuddy\2026-09-16-11-35-28\llm-lab'
+LAB = os.environ.get('LLM_LAB_DIR', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 MODEL_DIR = os.path.join(LAB, 'models', 'Qwen2.5-0.5B-Instruct')
 DATA = os.path.join(LAB, 'data')
 OUT = os.path.join(LAB, 'out', 'lora-attendance')

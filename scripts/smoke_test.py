@@ -3,7 +3,7 @@
 import os, sys, time
 sys.stdout.reconfigure(encoding='utf-8')
 
-LAB = r'C:\Users\intpj\WorkBuddy\2026-09-16-11-35-28\llm-lab'
+LAB = os.environ.get('LLM_LAB_DIR', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 MODEL_DIR = os.path.join(LAB, 'models', 'Qwen2.5-0.5B-Instruct')
 
 import torch
